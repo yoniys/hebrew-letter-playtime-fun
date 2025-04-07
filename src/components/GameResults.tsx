@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { HebrewLetter } from "@/data/hebrewLetters";
-import confetti from 'canvas-confetti';
+import confettiLib from 'canvas-confetti';
 import { useEffect } from "react";
 
 type GameResultsProps = {
@@ -29,14 +29,14 @@ const GameResults = ({
       const end = Date.now() + duration;
 
       const runConfetti = () => {
-        confetti({
+        confettiLib({
           particleCount: 3,
           angle: 60,
           spread: 55,
           origin: { x: 0 },
           colors: ['#4D96FF', '#907AD6', '#FDDB3A'],
         });
-        confetti({
+        confettiLib({
           particleCount: 3,
           angle: 120,
           spread: 55,
