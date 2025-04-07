@@ -1,6 +1,6 @@
 
 declare module 'canvas-confetti' {
-  export interface Options {
+  interface Options {
     particleCount?: number;
     angle?: number;
     spread?: number;
@@ -22,5 +22,7 @@ declare module 'canvas-confetti' {
   }
 
   type confetti = (options?: Options) => void;
+  
+  const confetti: confetti;
   export default confetti;
 }
