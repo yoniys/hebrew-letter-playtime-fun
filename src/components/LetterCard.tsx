@@ -25,6 +25,7 @@ const LetterCard = ({
     medium: "h-16 w-16 text-3xl",
     large: "h-24 w-24 text-5xl"
   };
+  console.log('isCorrect',isCorrect)
 
   return (
     <div
