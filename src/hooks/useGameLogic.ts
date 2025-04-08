@@ -19,6 +19,7 @@ export const useGameLogic = (
   const [questionNumber, setQuestionNumber] = useState(1);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [missedLetters, setMissedLetters] = useState<HebrewLetter[]>([]);
+  const [gameInitialized, setGameInitialized] = useState(false);
   
   const { toast } = useToast();
   
@@ -121,24 +122,26 @@ export const useGameLogic = (
     }, 1500);
   };
   
-  // Initialize the game
+  // Initialize the game once
   useEffect(() => {
-    // Use the imported hebrewLetters instead of requiring it
-    const shuffled = [...hebrewLetters].sort(() => Math.random() - 0.5);
-    setAvailableLetters(shuffled);
-    nextQuestion(shuffled);
-  }, [difficulty, nextQuestion]);
+    if (!gameInitialized) {
+      const shuffled = [...hebrewLetters].sort(() => Math.random() - 0.5);
+      setAvailableLetters(shuffled);
+      nextQuestion(shuffled);
+      setGameInitialized(true);
+    }
+  }, [difficulty, gameInitialized, nextQuestion]);
   
-  // Auto-play audio when the target letter changes
+  // Auto-play audio when the target letter changes, but only after initial setup
   useEffect(() => {
-    if (targetLetter) {
+    if (targetLetter && gameInitialized) {
       const timer = setTimeout(() => {
         playTargetAudio();
       }, 500);
       
       return () => clearTimeout(timer);
     }
-  }, [targetLetter, playTargetAudio]);
+  }, [targetLetter, playTargetAudio, gameInitialized]);
 
   return {
     currentLetters,
