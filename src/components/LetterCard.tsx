@@ -21,9 +21,9 @@ const LetterCard = ({
   const [isHovered, setIsHovered] = useState(false);
 
   const sizeClasses = {
-    small: "h-14 w-14 text-2xl",
-    medium: "h-20 w-20 text-4xl",
-    large: "h-28 w-28 text-6xl"
+    small: "h-12 w-12 text-xl",
+    medium: "h-16 w-16 text-3xl",
+    large: "h-24 w-24 text-5xl"
   };
 
   return (
