@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useEffect } from "react";
-import { HebrewLetter } from "@/data/hebrewLetters";
-import { playErrorSound } from "@/utils/audioUtils";
+import { HebrewLetter, hebrewLetters } from "@/data/hebrewLetters";
+import { playErrorSound, speakText } from "@/utils/audioUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { Difficulty, GameMode } from "@/components/GameConfig";
 
@@ -56,8 +56,7 @@ export const useGameLogic = (
     if (targetLetter && !isAudioPlaying) {
       setIsAudioPlaying(true);
       
-      // Use the speakText function from audioUtils
-      const { speakText } = require('@/utils/audioUtils');
+      // Use the imported speakText function instead of requiring it
       speakText(targetLetter.name);
       
       // Simulate audio duration
@@ -124,7 +123,7 @@ export const useGameLogic = (
   
   // Initialize the game
   useEffect(() => {
-    const { hebrewLetters } = require('@/data/hebrewLetters');
+    // Use the imported hebrewLetters instead of requiring it
     const shuffled = [...hebrewLetters].sort(() => Math.random() - 0.5);
     setAvailableLetters(shuffled);
     nextQuestion(shuffled);
