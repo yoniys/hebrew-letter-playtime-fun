@@ -36,6 +36,41 @@ export const playAudio = async (audioSrc: string): Promise<void> => {
   }
 };
 
+export const playErrorSound = (): void => {
+  try {
+    // Create a simple error sound using the Web Audio API
+    const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(220, context.currentTime); // Low A note
+    oscillator.frequency.setValueAtTime(196, context.currentTime + 0.2); // Low G note
+    
+    gainNode.gain.setValueAtTime(0.3, context.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+    
+    oscillator.start(context.currentTime);
+    oscillator.stop(context.currentTime + 0.5);
+    
+    // Clean up after the sound plays
+    setTimeout(() => {
+      context.close();
+    }, 600);
+  } catch (error) {
+    console.error("Error playing error sound:", error);
+    
+    // Fallback to speech synthesis
+    const utterance = new SpeechSynthesisUtterance("incorrect");
+    utterance.volume = 0.5;
+    utterance.rate = 1.0;
+    speechSynthesis.speak(utterance);
+  }
+};
+
 export const preloadAudio = async (audioSrcs: string[]): Promise<void> => {
   // This function would preload audio files
   // For now, we just log that we would preload them

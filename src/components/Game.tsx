@@ -4,7 +4,7 @@ import { HebrewLetter, hebrewLetters } from "@/data/hebrewLetters";
 import LetterCard from "./LetterCard";
 import AudioButton from "./AudioButton";
 import ScoreDisplay from "./ScoreDisplay";
-import { speakText } from "@/utils/audioUtils";
+import { speakText, playErrorSound } from "@/utils/audioUtils";
 import { Button } from "@/components/ui/button";
 import { Difficulty, GameMode } from "./GameConfig";
 import { useToast } from "@/components/ui/use-toast";
@@ -105,6 +105,9 @@ const Game = ({ difficulty, mode, questionsCount, onGameComplete }: GameProps) =
         className: "bg-kid-green bg-opacity-20",
       });
     } else {
+      // Play error sound when the answer is wrong
+      playErrorSound();
+      
       // Add to missed letters
       if (!missedLetters.some(l => l.id === targetLetter.id)) {
         setMissedLetters(prev => [...prev, targetLetter]);
@@ -112,9 +115,14 @@ const Game = ({ difficulty, mode, questionsCount, onGameComplete }: GameProps) =
       
       toast({
         title: "Not quite right",
-        description: `The correct letter was ${targetLetter.name}`,
+        description: `Try again! Listen to the letter name again.`,
         className: "bg-kid-pink bg-opacity-20",
       });
+      
+      // Allow the user to try again instead of moving to the next question
+      setSelectedLetter(null);
+      setIsCorrect(null);
+      return;
     }
     
     // Move to next question after a delay
@@ -138,19 +146,19 @@ const Game = ({ difficulty, mode, questionsCount, onGameComplete }: GameProps) =
   };
   
   return (
-    <div className="max-w-md mx-auto py-6 px-4">
+    <div className="w-full max-w-md mx-auto py-4 px-2 sm:px-4">
       {/* Game header */}
-      <div className="flex justify-between items-center mb-8">
-        <div className="text-lg font-medium">
+      <div className="flex justify-between items-center mb-4 sm:mb-8">
+        <div className="text-base sm:text-lg font-medium">
           Question <span className="font-bold text-kid-purple">{questionNumber}</span> of <span>{questionsCount}</span>
         </div>
         <ScoreDisplay score={score} total={questionNumber - 1} />
       </div>
       
       {/* Game prompt */}
-      <div className="text-center mb-10">
-        <h2 className="text-2xl font-bold mb-6">Tap the letter:</h2>
-        <div className="text-3xl font-bold text-kid-blue mb-4">
+      <div className="text-center mb-6 sm:mb-10">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Tap the letter:</h2>
+        <div className="text-2xl sm:text-3xl font-bold text-kid-blue mb-2 sm:mb-4">
           {targetLetter?.name}
         </div>
         <AudioButton
@@ -160,15 +168,23 @@ const Game = ({ difficulty, mode, questionsCount, onGameComplete }: GameProps) =
         />
       </div>
       
-      {/* Letter cards */}
+      {/* Letter cards - more responsive grid */}
       <div 
-        className={`grid gap-6 mb-8 mx-auto justify-center ${
+        className={`grid gap-3 sm:gap-6 mb-6 mx-auto justify-center ${
           currentLetters.length <= 3 
             ? "grid-cols-3" 
             : currentLetters.length === 4 
-              ? "grid-cols-2 grid-rows-2" 
-              : "grid-cols-3 md:grid-cols-5"
+              ? "grid-cols-2 sm:grid-cols-2" 
+              : "grid-cols-3"
         }`}
+        style={{ 
+          maxWidth: '100%', 
+          gridTemplateColumns: currentLetters.length <= 3 
+            ? 'repeat(3, minmax(70px, 1fr))' 
+            : currentLetters.length === 4 
+              ? 'repeat(2, minmax(90px, 1fr))' 
+              : 'repeat(3, minmax(70px, 1fr))' 
+        }}
       >
         {currentLetters.map((letter) => (
           <LetterCard
@@ -182,17 +198,17 @@ const Game = ({ difficulty, mode, questionsCount, onGameComplete }: GameProps) =
         ))}
       </div>
       
-      {/* Next button (appears only after selection) */}
-      {selectedLetter && questionNumber < questionsCount && (
+      {/* Next button (appears only after a correct selection) */}
+      {selectedLetter && isCorrect && questionNumber < questionsCount && (
         <div className="flex justify-center">
           <Button
             onClick={() => {
               setQuestionNumber((prev) => prev + 1);
               nextQuestion();
             }}
-            className="bg-kid-blue hover:bg-kid-blue/90 font-bold rounded-xl py-6 px-8 text-white"
+            className="bg-kid-blue hover:bg-kid-blue/90 font-bold rounded-xl py-4 sm:py-6 px-6 sm:px-8 text-white text-sm sm:text-base"
           >
-            Next Question <ArrowRight className="ml-2 h-5 w-5" />
+            Next Question <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </div>
       )}

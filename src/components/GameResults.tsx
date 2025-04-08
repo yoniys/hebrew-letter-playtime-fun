@@ -54,13 +54,13 @@ const GameResults = ({
   }, [isHighScore]);
 
   return (
-    <div className="w-full max-w-md p-6 bg-white rounded-3xl shadow-lg animate-pop">
-      <h2 className="text-2xl font-bold text-center mb-2">
+    <div className="w-full max-w-md p-4 sm:p-6 bg-white rounded-3xl shadow-lg animate-pop">
+      <h2 className="text-xl sm:text-2xl font-bold text-center mb-2">
         {isHighScore ? "Great job! 🎉" : "Game Complete"}
       </h2>
       
-      <div className="text-center mb-6">
-        <div className="text-5xl font-bold my-4">
+      <div className="text-center mb-4 sm:mb-6">
+        <div className="text-4xl sm:text-5xl font-bold my-2 sm:my-4">
           {score}/{totalQuestions}
         </div>
         <div className="w-full h-4 bg-gray-200 rounded-full">
@@ -74,15 +74,15 @@ const GameResults = ({
       </div>
       
       {missedLetters.length > 0 && (
-        <div className="mt-6 mb-6">
-          <h3 className="text-lg font-semibold mb-2">Letters to practice:</h3>
+        <div className="mt-4 sm:mt-6 mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-2">Letters to practice:</h3>
           <div className="flex flex-wrap gap-2 justify-center">
             {missedLetters.map((letter) => (
               <div
                 key={letter.id}
-                className="flex flex-col items-center bg-gray-100 rounded-lg p-2 w-16"
+                className="flex flex-col items-center bg-gray-100 rounded-lg p-2 w-14 sm:w-16"
               >
-                <div className="text-2xl font-bold">{letter.letter}</div>
+                <div className="text-xl sm:text-2xl font-bold">{letter.letter}</div>
                 <div className="text-xs">{letter.name}</div>
               </div>
             ))}
@@ -90,16 +90,16 @@ const GameResults = ({
         </div>
       )}
       
-      <div className="grid grid-cols-2 gap-4 mt-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4">
         <Button
           onClick={onPlayAgain}
-          className="py-6 font-bold rounded-xl bg-kid-blue hover:bg-kid-blue/90 text-white"
+          className="py-4 sm:py-6 text-sm sm:text-base font-bold rounded-xl bg-kid-blue hover:bg-kid-blue/90 text-white"
         >
           Play Again
         </Button>
         <Button
           onClick={onNewGame}
-          className="py-6 font-bold rounded-xl bg-kid-purple hover:bg-kid-purple/90 text-white"
+          className="py-4 sm:py-6 text-sm sm:text-base font-bold rounded-xl bg-kid-purple hover:bg-kid-purple/90 text-white"
         >
           New Game
         </Button>
