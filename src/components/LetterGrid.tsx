@@ -2,6 +2,7 @@
 import React from "react";
 import { HebrewLetter } from "@/data/hebrewLetters";
 import LetterCard from "./LetterCard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type LetterGridProps = {
   letters: HebrewLetter[];
@@ -16,22 +17,37 @@ const LetterGrid: React.FC<LetterGridProps> = ({
   isCorrect,
   onLetterClick
 }) => {
+  const isMobile = useIsMobile();
+  
+  // Determine the grid layout based on letter count and device
+  const getGridConfig = () => {
+    if (letters.length <= 3) {
+      return {
+        cols: isMobile ? "grid-cols-1" : "grid-cols-3",
+        template: isMobile ? 'repeat(3, minmax(80px, 1fr))' : 'repeat(3, minmax(90px, 1fr))'
+      };
+    } else if (letters.length === 4) {
+      return {
+        cols: isMobile ? "grid-cols-2" : "grid-cols-2",
+        template: 'repeat(2, minmax(90px, 1fr))'
+      };
+    } else {
+      return {
+        cols: isMobile ? "grid-cols-2" : "grid-cols-3",
+        template: isMobile ? 'repeat(2, minmax(70px, 1fr))' : 'repeat(3, minmax(80px, 1fr))'
+      };
+    }
+  };
+
+  const gridConfig = getGridConfig();
+  const cardSize = letters.length <= 4 ? "large" : (isMobile ? "small" : "medium");
+
   return (
     <div 
-      className={`grid gap-3 sm:gap-6 mb-6 mx-auto justify-center ${
-        letters.length <= 3 
-          ? "grid-cols-3" 
-          : letters.length === 4 
-            ? "grid-cols-2 sm:grid-cols-2" 
-            : "grid-cols-3"
-      }`}
+      className={`grid gap-4 mb-6 mx-auto justify-center ${gridConfig.cols}`}
       style={{ 
-        maxWidth: '100%', 
-        gridTemplateColumns: letters.length <= 3 
-          ? 'repeat(3, minmax(70px, 1fr))' 
-          : letters.length === 4 
-            ? 'repeat(2, minmax(90px, 1fr))' 
-            : 'repeat(3, minmax(70px, 1fr))' 
+        maxWidth: isMobile ? '100%' : '500px',
+        gridTemplateColumns: gridConfig.template
       }}
     >
       {letters.map((letter) => (
@@ -41,7 +57,7 @@ const LetterGrid: React.FC<LetterGridProps> = ({
           isSelected={selectedLetter?.id === letter.id}
           isCorrect={selectedLetter?.id === letter.id ? isCorrect : null}
           onClick={() => onLetterClick(letter)}
-          size={letters.length <= 4 ? "large" : "medium"}
+          size={cardSize}
         />
       ))}
     </div>
