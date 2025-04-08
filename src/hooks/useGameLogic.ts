@@ -69,11 +69,11 @@ export const useGameLogic = (
   
   const handleLetterClick = (letter: HebrewLetter) => {
     if (selectedLetter || !targetLetter) return;
-    
+  
     setSelectedLetter(letter);
     const correct = letter.id === targetLetter.id;
     setIsCorrect(correct);
-    
+  
     if (correct) {
       setScore((prev) => prev + 1);
       toast({
@@ -84,25 +84,28 @@ export const useGameLogic = (
     } else {
       // Play error sound when the answer is wrong
       playErrorSound();
-      
-      // Add to missed letters
+  
+      // Add to missed letters if not already in the list
       if (!missedLetters.some(l => l.id === targetLetter.id)) {
         setMissedLetters(prev => [...prev, targetLetter]);
       }
-      
+  
       toast({
         title: "Not quite right",
         description: `Try again! Listen to the letter name again.`,
         className: "bg-kid-pink bg-opacity-20",
       });
-      
-      // Allow the user to try again instead of moving to the next question
-      setSelectedLetter(null);
-      setIsCorrect(null);
-      return;
+  
+      // Keep the incorrect answer visible for 2 seconds before resetting
+      setTimeout(() => {
+        setSelectedLetter(null);
+        setIsCorrect(null);
+      }, 1000);
+  
+      return; // Stop execution, so the game doesn't proceed
     }
-    
-    // Move to next question after a delay
+  
+    // Move to the next question after a delay
     setTimeout(() => {
       if (questionNumber >= questionsCount) {
         // Game complete
@@ -121,6 +124,7 @@ export const useGameLogic = (
       }
     }, 1500);
   };
+  
   
   // Initialize the game once
   useEffect(() => {

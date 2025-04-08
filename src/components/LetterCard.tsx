@@ -26,7 +26,6 @@ const LetterCard = ({
     large: "h-24 w-24 text-5xl"
   };
   console.log('isCorrect',isCorrect)
-
   return (
     <div
       className={cn(
