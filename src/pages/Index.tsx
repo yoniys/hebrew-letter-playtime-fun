@@ -2,13 +2,14 @@
 import { useState } from "react";
 import Game from "@/components/Game";
 import StartMenu from "@/components/StartMenu";
+import InitialStartPage from "@/components/InitialStartPage";
 import GameResults from "@/components/GameResults";
 import { HebrewLetter } from "@/data/hebrewLetters";
 
-type GameState = "startMenu" | "config" | "playing" | "results";
+type GameState = "initialStart" | "startMenu" | "config" | "playing" | "results";
 
 const Index = () => {
-  const [gameState, setGameState] = useState<GameState>("startMenu");
+  const [gameState, setGameState] = useState<GameState>("initialStart");
   const [difficulty, setDifficulty] = useState("easy");
   const [mode, setMode] = useState("standard");
   const [questionsCount, setQuestionsCount] = useState(10);
@@ -35,10 +36,15 @@ const Index = () => {
   };
 
   const handleNewGame = () => {
-    setGameState("startMenu");
+    setGameState("initialStart");
   };
 
   const handleSelectExistingGame = () => {
+    // Move from initial start page to existing start menu 
+    setGameState("startMenu");
+  };
+
+  const handleSelectGameFromStartMenu = () => {
     // Start game immediately with default config (easy, standard, 10)
     setDifficulty("easy");
     setMode("standard");
@@ -57,7 +63,13 @@ const Index = () => {
         </header>
 
         <main className="flex flex-col items-center justify-center">
-          {gameState === "startMenu" && <StartMenu onGameSelect={handleSelectExistingGame} />}
+          {gameState === "initialStart" && (
+            <InitialStartPage onSelectGame={handleSelectExistingGame} />
+          )}
+
+          {gameState === "startMenu" && (
+            <StartMenu onGameSelect={handleSelectGameFromStartMenu} />
+          )}
 
           {gameState === "config" && <></> /* Optionally keep config screen if needed later */}
 
@@ -90,4 +102,3 @@ const Index = () => {
 };
 
 export default Index;
-
