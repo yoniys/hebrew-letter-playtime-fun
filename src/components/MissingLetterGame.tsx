@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { hebrewLetters, HebrewLetter } from "@/data/hebrewLetters";
+import { speakText } from "@/utils/audioUtils";
 
 type MissingLetterGameProps = {
   onComplete: (score: number, total: number, missedLetters: HebrewLetter[]) => void;
@@ -9,7 +10,6 @@ type MissingLetterGameProps = {
 
 const SIMPLE_WORDS = [
   // Words represented as arrays of HebrewLetters, missing one letter each
-  // Example words with one letter missing are simplified and made-up for learning purpose
   ["alef", "bet", "gimel"], // אבג
   ["dalet", "he", "vav"],   // דהו
   ["zayin", "het", "tet"],  // זחז
@@ -24,8 +24,6 @@ const getLetterById = (id: string): HebrewLetter | undefined =>
   hebrewLetters.find(l => l.id === id);
 
 const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
-  // Current word as array of HebrewLetters or undefined for missing letter
-  // We'll randomly remove one letter per word and provide options to pick for missing letter
   const [word, setWord] = useState<HebrewLetter[]>([]);
   const [missingIndex, setMissingIndex] = useState<number>(-1);
   const [options, setOptions] = useState<HebrewLetter[]>([]);
@@ -35,11 +33,18 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
   const totalQuestions = SIMPLE_WORDS.length;
   const [missedLetters, setMissedLetters] = useState<HebrewLetter[]>([]);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
     // Initialize first word on mount
     loadNextWord();
   }, []);
+
+  useEffect(() => {
+    if (word.length > 0) {
+      playWordAudio();
+    }
+  }, [word]);
 
   const loadNextWord = () => {
     const wordIds = SIMPLE_WORDS[getRandomInt(SIMPLE_WORDS.length)];
@@ -48,7 +53,6 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
     setWord(fullWord);
     setMissingIndex(missingPos);
 
-    // Generate options including the correct missing letter plus some random distractors
     const correctLetter = fullWord[missingPos];
     const distractors = hebrewLetters
       .filter(l => l.id !== correctLetter.id)
@@ -58,6 +62,22 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
 
     setSelectedLetter(null);
     setFeedback(null);
+  };
+
+  const playWordAudio = () => {
+    if (word.length === 0) return;
+    setIsSpeaking(true);
+
+    // Pronounce the entire word letter by letter with spaces between
+    const textToSpeak = word.map(l => l.name).join(" ");
+    speakText(textToSpeak);
+
+    // Estimate duration based on number of letters (approx 1s per letter)
+    const duration = word.length * 1000;
+
+    setTimeout(() => {
+      setIsSpeaking(false);
+    }, duration);
   };
 
   const handleSelect = (letter: HebrewLetter) => {
@@ -76,7 +96,6 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
       setFeedback("incorrect");
     }
 
-    // Move to next after delay
     setTimeout(() => {
       if (questionNumber >= totalQuestions) {
         onComplete(score + (isCorrect ? 1 : 0), totalQuestions, missedLetters);
@@ -137,8 +156,21 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
         {feedback === "correct" && <span className="text-kid-green">Correct! 🎉</span>}
         {feedback === "incorrect" && <span className="text-kid-pink">Try again next time!</span>}
       </div>
+
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={playWordAudio}
+          disabled={isSpeaking}
+          className="px-4 py-2 rounded bg-kid-blue text-white hover:bg-kid-blue/80 disabled:opacity-50 transition"
+          aria-label="Play word audio"
+          type="button"
+        >
+          {isSpeaking ? "Playing..." : "🔊 Hear the word"}
+        </button>
+      </div>
     </div>
   );
 };
 
 export default MissingLetterGame;
+

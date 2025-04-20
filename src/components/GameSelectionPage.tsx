@@ -1,6 +1,6 @@
+
 import React from "react";
 import { Gamepad } from "lucide-react";
-import MissingLetterGame from "./MissingLetterGame";
 
 type GameSelectionPageProps = {
   onSelectGame: (gameId: string) => void;
@@ -31,3 +31,4 @@ const GameSelectionPage = ({ onSelectGame }: GameSelectionPageProps) => {
 };
 
 export default GameSelectionPage;
+
