@@ -3,12 +3,13 @@ import { useState } from "react";
 import Game from "@/components/Game";
 import GameConfig, { Difficulty, GameMode } from "@/components/GameConfig";
 import GameResults from "@/components/GameResults";
+import GameSelectionPage from "@/components/GameSelectionPage";
 import { HebrewLetter } from "@/data/hebrewLetters";
 
-type GameState = "config" | "playing" | "results";
+type GameState = "gameSelection" | "config" | "playing" | "results";
 
 const Index = () => {
-  const [gameState, setGameState] = useState<GameState>("config");
+  const [gameState, setGameState] = useState<GameState>("gameSelection");
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [mode, setMode] = useState<GameMode>("standard");
   const [questionsCount, setQuestionsCount] = useState(10);
@@ -35,7 +36,14 @@ const Index = () => {
   };
 
   const handleNewGame = () => {
-    setGameState("config");
+    setGameState("gameSelection");
+  };
+
+  const handleSelectGameFromSelection = (gameId: string) => {
+    if (gameId === "hebrewLetterPlaytime") {
+      setGameState("config");
+    }
+    // Future game options can be handled here
   };
 
   return (
@@ -49,6 +57,10 @@ const Index = () => {
         </header>
         
         <main className="flex flex-col items-center justify-center">
+          {gameState === "gameSelection" && (
+            <GameSelectionPage onSelectGame={handleSelectGameFromSelection} />
+          )}
+
           {gameState === "config" && (
             <GameConfig onStart={handleGameStart} />
           )}
