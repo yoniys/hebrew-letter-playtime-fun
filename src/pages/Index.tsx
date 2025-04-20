@@ -1,12 +1,12 @@
-
 import { useState } from "react";
 import Game from "@/components/Game";
 import GameConfig, { Difficulty, GameMode } from "@/components/GameConfig";
 import GameResults from "@/components/GameResults";
 import GameSelectionPage from "@/components/GameSelectionPage";
+import MissingLetterGame from "@/components/MissingLetterGame";
 import { HebrewLetter } from "@/data/hebrewLetters";
 
-type GameState = "gameSelection" | "config" | "playing" | "results";
+type GameState = "gameSelection" | "config" | "playing" | "missingLetterPlaying" | "results";
 
 const Index = () => {
   const [gameState, setGameState] = useState<GameState>("gameSelection");
@@ -32,7 +32,11 @@ const Index = () => {
   };
 
   const handlePlayAgain = () => {
-    setGameState("playing");
+    if (gameState === "playing") {
+      setGameState("playing");
+    } else if (gameState === "missingLetterPlaying") {
+      setGameState("missingLetterPlaying");
+    }
   };
 
   const handleNewGame = () => {
@@ -42,8 +46,9 @@ const Index = () => {
   const handleSelectGameFromSelection = (gameId: string) => {
     if (gameId === "hebrewLetterPlaytime") {
       setGameState("config");
+    } else if (gameId === "missingLetterGame") {
+      setGameState("missingLetterPlaying");
     }
-    // Future game options can be handled here
   };
 
   return (
@@ -51,11 +56,15 @@ const Index = () => {
       <div className="container mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-kid-blue via-kid-purple to-kid-pink bg-clip-text text-transparent mb-2">
-            Hebrew Letter Playtime
+            {gameState === "missingLetterPlaying" ? "Missing Letter Game" : "Hebrew Letter Playtime"}
           </h1>
-          <p className="text-gray-600 text-lg">Learn Hebrew letters through fun and play!</p>
+          <p className="text-gray-600 text-lg">
+            {gameState === "missingLetterPlaying"
+              ? "Complete the missing letters in the words!"
+              : "Learn Hebrew letters through fun and play!"}
+          </p>
         </header>
-        
+
         <main className="flex flex-col items-center justify-center">
           {gameState === "gameSelection" && (
             <GameSelectionPage onSelectGame={handleSelectGameFromSelection} />
@@ -64,16 +73,20 @@ const Index = () => {
           {gameState === "config" && (
             <GameConfig onStart={handleGameStart} />
           )}
-          
+
           {gameState === "playing" && (
-            <Game 
+            <Game
               difficulty={difficulty}
               mode={mode}
               questionsCount={questionsCount}
               onGameComplete={handleGameComplete}
             />
           )}
-          
+
+          {gameState === "missingLetterPlaying" && (
+            <MissingLetterGame onComplete={handleGameComplete} />
+          )}
+
           {gameState === "results" && (
             <GameResults
               score={score}
@@ -84,7 +97,7 @@ const Index = () => {
             />
           )}
         </main>
-        
+
         <footer className="text-center mt-12 text-sm text-gray-500">
           <p>© 2025 Hebrew Letter Playtime Fun | A learning game for children</p>
         </footer>
