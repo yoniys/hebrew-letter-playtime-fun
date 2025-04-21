@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Game from "@/components/Game";
 import GameConfig, { Difficulty, GameMode } from "@/components/GameConfig";
@@ -15,7 +16,10 @@ const Index = () => {
   const [questionsCount, setQuestionsCount] = useState(10);
   const [score, setScore] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
+  // For Hebrew letter main game missedLetters: HebrewLetter[]
   const [missedLetters, setMissedLetters] = useState<HebrewLetter[]>([]);
+  // For Missing letter game missed missing letters are string[]
+  const [missedMissingLetters, setMissedMissingLetters] = useState<string[]>([]);
 
   const handleGameStart = (config: { difficulty: Difficulty; mode: GameMode; questionsCount: number }) => {
     setDifficulty(config.difficulty);
@@ -24,10 +28,21 @@ const Index = () => {
     setGameState("playing");
   };
 
+  // Latin letter game uses HebrewLetter[] missed letters
   const handleGameComplete = (score: number, total: number, missed: HebrewLetter[]) => {
     setScore(score);
     setTotalQuestions(total);
     setMissedLetters(missed);
+    setMissedMissingLetters([]); // clear missing letter missed letters
+    setGameState("results");
+  };
+
+  // Missing letter game uses string[] missed letters
+  const handleMissingLetterGameComplete = (score: number, total: number, missed: string[]) => {
+    setScore(score);
+    setTotalQuestions(total);
+    setMissedMissingLetters(missed);
+    setMissedLetters([]); // clear HebrewLetter[] missed letters
     setGameState("results");
   };
 
@@ -56,12 +71,12 @@ const Index = () => {
       <div className="container mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-kid-blue via-kid-purple to-kid-pink bg-clip-text text-transparent mb-2">
-            {gameState === "missingLetterPlaying" ? "Missing Letter Game" : "Hebrew Letter Playtime"}
+            {gameState === "missingLetterPlaying" ? "משחק מילים חסרות" : "פעילות אותיות עבריות"}
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 text-lg" dir={gameState === "missingLetterPlaying" ? "rtl" : "ltr"}>
             {gameState === "missingLetterPlaying"
-              ? "Complete the missing letters in the words!"
-              : "Learn Hebrew letters through fun and play!"}
+              ? "השלים את האותיות החסרות במילים!"
+              : "למד אותיות עבריות באמצעות משחק מהנה!"}
           </p>
         </header>
 
@@ -84,7 +99,7 @@ const Index = () => {
           )}
 
           {gameState === "missingLetterPlaying" && (
-            <MissingLetterGame onComplete={handleGameComplete} />
+            <MissingLetterGame onComplete={handleMissingLetterGameComplete} />
           )}
 
           {gameState === "results" && (
@@ -93,12 +108,13 @@ const Index = () => {
               totalQuestions={totalQuestions}
               onPlayAgain={handlePlayAgain}
               onNewGame={handleNewGame}
-              missedLetters={missedLetters}
+              // Show HebrewLetter[] missed letters when available (main game)
+              missedLetters={missedLetters.length > 0 ? missedLetters : []}
             />
           )}
         </main>
 
-        <footer className="text-center mt-12 text-sm text-gray-500">
+        <footer className="text-center mt-12 text-sm text-gray-500" dir="ltr">
           <p>© 2025 Hebrew Letter Playtime Fun | A learning game for children</p>
         </footer>
       </div>

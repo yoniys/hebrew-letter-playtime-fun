@@ -3,6 +3,11 @@ import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import missingLetterWords from "@/data/missingLetterWords.json";
 
+// Hebrew alphabet array for distractors and options
+const HEBREW_ALPHABET = [
+  "א","ב","ג","ד","ה","ו","ז","ח","ט","י","כ","ל","מ","נ","ס","ע","פ","צ","ק","ר","ש","ת"
+];
+
 type WordObject = {
   fullWord: string;
   displayWord: string;
@@ -14,8 +19,6 @@ type WordObject = {
 type MissingLetterGameProps = {
   onComplete: (score: number, total: number, missedLetters: string[]) => void;
 };
-
-const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 
 const getRandomInt = (max: number) => Math.floor(Math.random() * max);
 
@@ -41,15 +44,16 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
   }, [currentWordIndex]);
 
   const loadNextWord = () => {
-    // Choose a random index to pick a word object
-    const idx = getRandomInt(missingLetterWords.length);
+    // Use sequential index instead of random to avoid repetition
+    const idx = questionNumber - 1;
+    if (idx >= totalQuestions) return;
     setCurrentWordIndex(idx);
 
     const wordObj = missingLetterWords[idx];
     const correctLetter = wordObj.missingLetter;
 
     // Generate distractor letters (exclude correctLetter)
-    let distractors = ALPHABET.filter(
+    let distractors = HEBREW_ALPHABET.filter(
       (l) => l !== correctLetter
     );
 
@@ -104,6 +108,7 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
 
     setTimeout(() => {
       if (questionNumber >= totalQuestions) {
+        // Pass missedLetters as array of letters (strings)
         onComplete(score + (isCorrect ? 1 : 0), totalQuestions, missedLetters);
       } else {
         setQuestionNumber((q) => q + 1);
@@ -119,8 +124,8 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
   const wordObj = missingLetterWords[currentWordIndex];
 
   return (
-    <div className="w-full max-w-md mx-auto py-4 px-2 sm:px-4 text-center">
-      <h2 className="text-2xl font-bold mb-6">Complete the word!</h2>
+    <div className="w-full max-w-md mx-auto py-4 px-2 sm:px-4 text-center" dir="rtl" lang="he">
+      <h2 className="text-2xl font-bold mb-6">השלים את המילה!</h2>
 
       {wordObj.imageUrl && (
         <img
@@ -148,31 +153,31 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
               variant={correct ? "default" : incorrect ? "destructive" : "outline"}
               size="lg"
               className="text-4xl"
-              aria-label={`Select letter ${letter}`}
+              aria-label={`בחר אות ${letter}`}
             >
-              {letter.toUpperCase()}
+              {letter}
             </Button>
           );
         })}
       </div>
 
       <div className="text-lg font-semibold mb-2">
-        Question {questionNumber} of {totalQuestions}
+        שאלה {questionNumber} מתוך {totalQuestions}
       </div>
 
       <div className="min-h-[28px] mb-6">
-        {feedback === "correct" && <span className="text-kid-green">Correct! 🎉</span>}
-        {feedback === "incorrect" && <span className="text-kid-pink">Try again next time!</span>}
+        {feedback === "correct" && <span className="text-kid-green">נכון! 🎉</span>}
+        {feedback === "incorrect" && <span className="text-kid-pink">נסה בפעם הבאה!</span>}
       </div>
 
       <button
         onClick={playWordAudio}
         disabled={isSpeaking}
         className="px-4 py-2 rounded bg-kid-blue text-white hover:bg-kid-blue/80 disabled:opacity-50 transition"
-        aria-label="Play word audio"
+        aria-label="השמע את המילה"
         type="button"
       >
-        {isSpeaking ? "Playing..." : "🔊 Hear the word"}
+        {isSpeaking ? "בוחן קול..." : "🔊 השמע את המילה"}
       </button>
     </div>
   );

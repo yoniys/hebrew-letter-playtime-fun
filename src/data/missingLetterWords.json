@@ -1,31 +1,31 @@
 
 [
   {
-    "fullWord": "love",
-    "displayWord": "lo_e",
-    "audioUrl": "/assets/audio/love.mp3",
+    "fullWord": "אהבה",
+    "displayWord": "א_בה",
+    "audioUrl": "/assets/audio/ahava.mp3",
     "imageUrl": "/assets/images/love.png",
-    "missingLetter": "v"
+    "missingLetter": "ה"
   },
   {
-    "fullWord": "cake",
-    "displayWord": "ca_e",
-    "audioUrl": "/assets/audio/cake.mp3",
-    "imageUrl": "/assets/images/cake.png",
-    "missingLetter": "k"
+    "fullWord": "לחם",
+    "displayWord": "ל_ם",
+    "audioUrl": "/assets/audio/lechem.mp3",
+    "imageUrl": "/assets/images/bread.png",
+    "missingLetter": "ח"
   },
   {
-    "fullWord": "home",
-    "displayWord": "ho_e",
-    "audioUrl": "/assets/audio/home.mp3",
+    "fullWord": "בית",
+    "displayWord": "ב_ת",
+    "audioUrl": "/assets/audio/beit.mp3",
     "imageUrl": "/assets/images/home.png",
-    "missingLetter": "m"
+    "missingLetter": "י"
   },
   {
-    "fullWord": "fire",
-    "displayWord": "fi_e",
-    "audioUrl": "/assets/audio/fire.mp3",
+    "fullWord": "אש",
+    "displayWord": "_ש",
+    "audioUrl": "/assets/audio/esh.mp3",
     "imageUrl": "/assets/images/fire.png",
-    "missingLetter": "r"
+    "missingLetter": "א"
   }
 ]
