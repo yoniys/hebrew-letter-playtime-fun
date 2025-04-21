@@ -1,99 +1,105 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { hebrewLetters, HebrewLetter } from "@/data/hebrewLetters";
-import { speakText } from "@/utils/audioUtils";
+import missingLetterWords from "@/data/missingLetterWords.json";
 
-type MissingLetterGameProps = {
-  onComplete: (score: number, total: number, missedLetters: HebrewLetter[]) => void;
+type WordObject = {
+  fullWord: string;
+  displayWord: string;
+  audioUrl: string;
+  imageUrl?: string;
+  missingLetter: string;
 };
 
-const SIMPLE_WORDS = [
-  // Words represented as arrays of HebrewLetters, missing one letter each
-  ["alef", "bet", "gimel"], // אבג
-  ["dalet", "he", "vav"],   // דהו
-  ["zayin", "het", "tet"],  // זחז
-  ["yod", "kaf", "lamed"],  // יקל
-  ["mem", "nun", "samekh"], // מנס
-];
+type MissingLetterGameProps = {
+  onComplete: (score: number, total: number, missedLetters: string[]) => void;
+};
+
+const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 
 const getRandomInt = (max: number) => Math.floor(Math.random() * max);
 
-// Helper to get letter object by id from hebrewLetters
-const getLetterById = (id: string): HebrewLetter | undefined =>
-  hebrewLetters.find(l => l.id === id);
-
 const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
-  const [word, setWord] = useState<HebrewLetter[]>([]);
-  const [missingIndex, setMissingIndex] = useState<number>(-1);
-  const [options, setOptions] = useState<HebrewLetter[]>([]);
-  const [selectedLetter, setSelectedLetter] = useState<HebrewLetter | null>(null);
+  const [currentWordIndex, setCurrentWordIndex] = useState<number>(-1);
+  const [options, setOptions] = useState<string[]>([]);
+  const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [score, setScore] = useState<number>(0);
   const [questionNumber, setQuestionNumber] = useState<number>(1);
-  const totalQuestions = SIMPLE_WORDS.length;
-  const [missedLetters, setMissedLetters] = useState<HebrewLetter[]>([]);
+  const totalQuestions = missingLetterWords.length;
+  const [missedLetters, setMissedLetters] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
-    // Initialize first word on mount
     loadNextWord();
   }, []);
 
   useEffect(() => {
-    if (word.length > 0) {
+    if (currentWordIndex >= 0) {
       playWordAudio();
     }
-  }, [word]);
+  }, [currentWordIndex]);
 
   const loadNextWord = () => {
-    const wordIds = SIMPLE_WORDS[getRandomInt(SIMPLE_WORDS.length)];
-    const fullWord = wordIds.map(id => getLetterById(id)).filter(Boolean) as HebrewLetter[];
-    const missingPos = getRandomInt(fullWord.length);
-    setWord(fullWord);
-    setMissingIndex(missingPos);
+    // Choose a random index to pick a word object
+    const idx = getRandomInt(missingLetterWords.length);
+    setCurrentWordIndex(idx);
 
-    const correctLetter = fullWord[missingPos];
-    const distractors = hebrewLetters
-      .filter(l => l.id !== correctLetter.id)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
-    setOptions([correctLetter, ...distractors].sort(() => Math.random() - 0.5));
+    const wordObj = missingLetterWords[idx];
+    const correctLetter = wordObj.missingLetter;
 
+    // Generate distractor letters (exclude correctLetter)
+    let distractors = ALPHABET.filter(
+      (l) => l !== correctLetter
+    );
+
+    // Shuffle distractors and pick 3
+    for (let i = distractors.length - 1; i > 0; i--) {
+      const j = getRandomInt(i + 1);
+      [distractors[i], distractors[j]] = [distractors[j], distractors[i]];
+    }
+    distractors = distractors.slice(0, 3);
+
+    // Combine and shuffle options
+    const combined = [...distractors, correctLetter];
+    for (let i = combined.length - 1; i > 0; i--) {
+      const j = getRandomInt(i + 1);
+      [combined[i], combined[j]] = [combined[j], combined[i]];
+    }
+
+    setOptions(combined);
     setSelectedLetter(null);
     setFeedback(null);
   };
 
   const playWordAudio = () => {
-    if (word.length === 0) return;
+    if (currentWordIndex < 0) return;
+    const wordObj = missingLetterWords[currentWordIndex];
     setIsSpeaking(true);
 
-    // Pronounce the entire word letter by letter with spaces between
-    const textToSpeak = word.map(l => l.name).join(" ");
-    speakText(textToSpeak);
+    const audio = new Audio(wordObj.audioUrl);
+    audio.play();
 
-    // Estimate duration based on number of letters (approx 1s per letter)
-    const duration = word.length * 1000;
-
-    setTimeout(() => {
+    audio.onended = () => {
       setIsSpeaking(false);
-    }, duration);
+    };
   };
 
-  const handleSelect = (letter: HebrewLetter) => {
-    if (selectedLetter) return; // only allow one selection per question
+  const handleSelect = (letter: string) => {
+    if (selectedLetter) return; // one attempt per question
     setSelectedLetter(letter);
 
-    const isCorrect = letter.id === word[missingIndex].id;
+    const wordObj = missingLetterWords[currentWordIndex];
+    const isCorrect = letter === wordObj.missingLetter;
+
     if (isCorrect) {
       setScore((s) => s + 1);
       setFeedback("correct");
     } else {
-      setMissedLetters((prev) => {
-        if (prev.some(l => l.id === word[missingIndex].id)) return prev;
-        return [...prev, word[missingIndex]];
-      });
       setFeedback("incorrect");
+      if (!missedLetters.includes(wordObj.missingLetter)) {
+        setMissedLetters((prev) => [...prev, wordObj.missingLetter]);
+      }
     }
 
     setTimeout(() => {
@@ -106,68 +112,68 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
     }, 1500);
   };
 
+  if (currentWordIndex < 0) {
+    return <div>Loading...</div>;
+  }
+
+  const wordObj = missingLetterWords[currentWordIndex];
+
   return (
-    <div className="w-full max-w-md mx-auto py-4 px-2 sm:px-4">
-      <h2 className="text-center text-2xl font-bold mb-6">Complete the word!</h2>
-      <div className="flex justify-center mb-6 space-x-2 text-5xl">
-        {word.map((letter, idx) =>
-          idx === missingIndex ? (
-            <div
-              key="missing"
-              className="w-12 h-16 border-b-4 border-kid-blue border-dashed text-center text-kid-blue"
-              aria-label="Missing letter"
-            >
-              &nbsp;
-            </div>
-          ) : (
-            <div key={letter.id} aria-label={`Letter ${letter.name}`}>
-              {letter.letter}
-            </div>
-          )
-        )}
+    <div className="w-full max-w-md mx-auto py-4 px-2 sm:px-4 text-center">
+      <h2 className="text-2xl font-bold mb-6">Complete the word!</h2>
+
+      {wordObj.imageUrl && (
+        <img
+          src={wordObj.imageUrl}
+          alt={wordObj.fullWord}
+          className="mx-auto mb-4 max-h-40 object-contain"
+        />
+      )}
+
+      <div className="text-6xl mb-8 font-mono tracking-widest select-none" aria-label={`Word with missing letter: ${wordObj.displayWord}`}>
+        {wordObj.displayWord}
       </div>
 
-      <div className="grid grid-cols-4 gap-4 max-w-sm mx-auto">
+      <div className="grid grid-cols-4 gap-4 max-w-sm mx-auto mb-6">
         {options.map((letter) => {
-          const selected = selectedLetter?.id === letter.id;
+          const selected = selectedLetter === letter;
           const correct = feedback === "correct" && selected;
           const incorrect = feedback === "incorrect" && selected;
+
           return (
             <Button
-              key={letter.id}
+              key={letter}
               onClick={() => handleSelect(letter)}
               disabled={!!selectedLetter}
               variant={correct ? "default" : incorrect ? "destructive" : "outline"}
               size="lg"
               className="text-4xl"
-              aria-label={`Select letter ${letter.name}`}
+              aria-label={`Select letter ${letter}`}
             >
-              {letter.letter}
+              {letter.toUpperCase()}
             </Button>
           );
         })}
       </div>
 
-      <div className="text-center mt-6 text-lg font-semibold">
+      <div className="text-lg font-semibold mb-2">
         Question {questionNumber} of {totalQuestions}
       </div>
 
-      <div className="text-center mt-2 min-h-[28px]">
+      <div className="min-h-[28px] mb-6">
         {feedback === "correct" && <span className="text-kid-green">Correct! 🎉</span>}
         {feedback === "incorrect" && <span className="text-kid-pink">Try again next time!</span>}
       </div>
 
-      <div className="flex justify-center mt-6">
-        <button
-          onClick={playWordAudio}
-          disabled={isSpeaking}
-          className="px-4 py-2 rounded bg-kid-blue text-white hover:bg-kid-blue/80 disabled:opacity-50 transition"
-          aria-label="Play word audio"
-          type="button"
-        >
-          {isSpeaking ? "Playing..." : "🔊 Hear the word"}
-        </button>
-      </div>
+      <button
+        onClick={playWordAudio}
+        disabled={isSpeaking}
+        className="px-4 py-2 rounded bg-kid-blue text-white hover:bg-kid-blue/80 disabled:opacity-50 transition"
+        aria-label="Play word audio"
+        type="button"
+      >
+        {isSpeaking ? "Playing..." : "🔊 Hear the word"}
+      </button>
     </div>
   );
 };

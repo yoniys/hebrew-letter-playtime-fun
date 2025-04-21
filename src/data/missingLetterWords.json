@@ -1,0 +1,31 @@
+
+[
+  {
+    "fullWord": "love",
+    "displayWord": "lo_e",
+    "audioUrl": "/assets/audio/love.mp3",
+    "imageUrl": "/assets/images/love.png",
+    "missingLetter": "v"
+  },
+  {
+    "fullWord": "cake",
+    "displayWord": "ca_e",
+    "audioUrl": "/assets/audio/cake.mp3",
+    "imageUrl": "/assets/images/cake.png",
+    "missingLetter": "k"
+  },
+  {
+    "fullWord": "home",
+    "displayWord": "ho_e",
+    "audioUrl": "/assets/audio/home.mp3",
+    "imageUrl": "/assets/images/home.png",
+    "missingLetter": "m"
+  },
+  {
+    "fullWord": "fire",
+    "displayWord": "fi_e",
+    "audioUrl": "/assets/audio/fire.mp3",
+    "imageUrl": "/assets/images/fire.png",
+    "missingLetter": "r"
+  }
+]
