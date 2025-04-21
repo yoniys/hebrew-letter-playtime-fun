@@ -47,10 +47,19 @@ const Index = () => {
   };
 
   const handlePlayAgain = () => {
-    if (gameState === "playing") {
-      setGameState("playing");
-    } else if (gameState === "missingLetterPlaying") {
-      setGameState("missingLetterPlaying");
+    // Restart the current game mode fresh
+    if (gameState === "results") {
+      // Check which game was just played and restart that game
+      if (missedLetters.length > 0) {
+        // Main Hebrew letter game
+        setGameState("playing");
+      } else if (missedMissingLetters.length > 0) {
+        // Missing letter game
+        setGameState("missingLetterPlaying");
+      } else {
+        // Default fallback to game selection
+        setGameState("gameSelection");
+      }
     }
   };
 
@@ -123,3 +132,4 @@ const Index = () => {
 };
 
 export default Index;
+
