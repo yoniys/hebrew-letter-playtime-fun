@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
-import { App as CapacitorApp, StatusBarStyle } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 /**
  * This component initializes Capacitor features when running as a native app
@@ -14,10 +14,10 @@ const AppCapacitor = () => {
         try {
           if (Capacitor.getPlatform() === 'ios') {
             // For iOS, we might want to use a light status bar
-            CapacitorApp.setStatusBarStyle({ style: StatusBarStyle.Light });
+            StatusBar.setStyle({ style: Style.Light });
           } else {
             // For Android, we might want to use a dark status bar
-            CapacitorApp.setStatusBarStyle({ style: StatusBarStyle.Dark });
+            StatusBar.setStyle({ style: Style.Dark });
           }
         } catch (error) {
           console.error('Error setting up status bar:', error);

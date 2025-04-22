@@ -7,7 +7,8 @@ import GameSelectionPage from "@/components/GameSelectionPage";
 import MissingLetterGame from "@/components/MissingLetterGame";
 import { HebrewLetter } from "@/data/hebrewLetters";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { App as CapacitorApp } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
+import { App as CapacitorApp } from '@capacitor/app';
 
 type GameState = "gameSelection" | "config" | "playing" | "missingLetterPlaying" | "results";
 
@@ -25,7 +26,7 @@ const Index = () => {
   // Set up back button handler for mobile devices
   useEffect(() => {
     // Only run this effect in a Capacitor environment
-    if (window.Capacitor) {
+    if (Capacitor.isNativePlatform()) {
       const handleBackButton = () => {
         if (gameState === "results" || gameState === "playing" || gameState === "missingLetterPlaying" || gameState === "config") {
           setGameState("gameSelection");
