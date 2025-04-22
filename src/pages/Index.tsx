@@ -1,11 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Game from "@/components/Game";
 import GameConfig, { Difficulty, GameMode } from "@/components/GameConfig";
 import GameResults from "@/components/GameResults";
 import GameSelectionPage from "@/components/GameSelectionPage";
 import MissingLetterGame from "@/components/MissingLetterGame";
 import { HebrewLetter } from "@/data/hebrewLetters";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { App as CapacitorApp } from '@capacitor/core';
 
 type GameState = "gameSelection" | "config" | "playing" | "missingLetterPlaying" | "results";
 
@@ -16,10 +18,31 @@ const Index = () => {
   const [questionsCount, setQuestionsCount] = useState(10);
   const [score, setScore] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
-  // For Hebrew letter main game missedLetters: HebrewLetter[]
   const [missedLetters, setMissedLetters] = useState<HebrewLetter[]>([]);
-  // For Missing letter game missed missing letters are string[]
   const [missedMissingLetters, setMissedMissingLetters] = useState<string[]>([]);
+  const isMobile = useIsMobile();
+
+  // Set up back button handler for mobile devices
+  useEffect(() => {
+    // Only run this effect in a Capacitor environment
+    if (window.Capacitor) {
+      const handleBackButton = () => {
+        if (gameState === "results" || gameState === "playing" || gameState === "missingLetterPlaying" || gameState === "config") {
+          setGameState("gameSelection");
+          return false; // Don't exit the app, just navigate
+        }
+        return true; // Allow exiting the app if we're at the home/selection screen
+      };
+
+      // Add back button listener
+      const backButtonListener = CapacitorApp.addListener('backButton', handleBackButton);
+      
+      // Cleanup listener on component unmount
+      return () => {
+        backButtonListener.remove();
+      };
+    }
+  }, [gameState]);
 
   const handleGameStart = (config: { difficulty: Difficulty; mode: GameMode; questionsCount: number }) => {
     setDifficulty(config.difficulty);
@@ -76,13 +99,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-kid-background py-8 px-4">
+    <div className={`min-h-[100vh] h-full bg-kid-background py-4 sm:py-8 px-2 sm:px-4 ${isMobile ? 'safe-area-inset-top safe-area-inset-bottom' : ''}`}>
       <div className="container mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-kid-blue via-kid-purple to-kid-pink bg-clip-text text-transparent mb-2">
+        <header className="text-center mb-4 sm:mb-8">
+          <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-kid-blue via-kid-purple to-kid-pink bg-clip-text text-transparent mb-2 ${isMobile ? 'leading-tight' : ''}`}>
             {gameState === "missingLetterPlaying" ? "משחק מילים חסרות" : "פעילות אותיות עבריות"}
           </h1>
-          <p className="text-gray-600 text-lg" dir={gameState === "missingLetterPlaying" ? "rtl" : "ltr"}>
+          <p className="text-gray-600 text-base sm:text-lg" dir={gameState === "missingLetterPlaying" ? "rtl" : "ltr"}>
             {gameState === "missingLetterPlaying"
               ? "השלים את האותיות החסרות במילים!"
               : "למד אותיות עבריות באמצעות משחק מהנה!"}
@@ -123,7 +146,7 @@ const Index = () => {
           )}
         </main>
 
-        <footer className="text-center mt-12 text-sm text-gray-500" dir="ltr">
+        <footer className="text-center mt-8 sm:mt-12 text-xs sm:text-sm text-gray-500 pb-safe" dir="ltr">
           <p>© 2025 Hebrew Letter Playtime Fun | A learning game for children</p>
         </footer>
       </div>
@@ -132,4 +155,3 @@ const Index = () => {
 };
 
 export default Index;
-
