@@ -27,20 +27,25 @@ const Index = () => {
   useEffect(() => {
     // Only run this effect in a Capacitor environment
     if (Capacitor.isNativePlatform()) {
-      const handleBackButton = () => {
-        if (gameState === "results" || gameState === "playing" || gameState === "missingLetterPlaying" || gameState === "config") {
-          setGameState("gameSelection");
-          return false; // Don't exit the app, just navigate
-        }
-        return true; // Allow exiting the app if we're at the home/selection screen
+      let backButtonListener: any;
+      
+      const setupBackButtonListener = async () => {
+        backButtonListener = await CapacitorApp.addListener('backButton', () => {
+          if (gameState === "results" || gameState === "playing" || gameState === "missingLetterPlaying" || gameState === "config") {
+            setGameState("gameSelection");
+            return false; // Don't exit the app, just navigate
+          }
+          return true; // Allow exiting the app if we're at the home/selection screen
+        });
       };
-
-      // Add back button listener
-      const backButtonListener = CapacitorApp.addListener('backButton', handleBackButton);
+      
+      setupBackButtonListener();
       
       // Cleanup listener on component unmount
       return () => {
-        backButtonListener.remove();
+        if (backButtonListener) {
+          backButtonListener.remove();
+        }
       };
     }
   }, [gameState]);
