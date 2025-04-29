@@ -29,7 +29,7 @@ const GameSelectionPage = ({ onSelectGame }: GameSelectionPageProps) => {
         aria-label="Missing Letter Game"
       >
         <span className="text-kid-purple text-4xl font-bold mb-3">א_א</span>
-        <span className="font-semibold text-kid-purple" dir="rtl">משחק מילים חסרות</span>
+        <span className="font-semibold text-kid-purple" dir="rtl">משחק אותיות חסרות</span>
       </button>
     </div>
   );
