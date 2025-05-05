@@ -61,9 +61,9 @@ export const useGameLogic = (
       speakText(targetLetter.name);
       
       // Simulate audio duration
-      setTimeout(() => {
+      // setTimeout(() => {
         setIsAudioPlaying(false);
-      }, 1000);
+      // }, 1000);
     }
   }, [targetLetter, isAudioPlaying]);
   

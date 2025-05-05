@@ -109,7 +109,7 @@ const Index = () => {
       <div className="container mx-auto">
         <header className="text-center mb-4 sm:mb-8">
           <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-kid-blue via-kid-purple to-kid-pink bg-clip-text text-transparent mb-2 ${isMobile ? 'leading-tight' : ''}`}>
-            {gameState === "missingLetterPlaying" ? "משחק מילים חסרות" : "פעילות אותיות עבריות"}
+            {gameState === "missingLetterPlaying" ? "משחק האותיות החסרות" : "פעילות אותיות עבריות"}
           </h1>
           <p className="text-gray-600 text-base sm:text-lg" dir={gameState === "missingLetterPlaying" ? "rtl" : "ltr"}>
             {gameState === "missingLetterPlaying"
