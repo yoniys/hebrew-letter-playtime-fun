@@ -72,6 +72,7 @@ export const useGameLogic = (
     }
   }, [targetLetter, isAudioPlaying]);
   
+
   const handleLetterClick = (letter: HebrewLetter) => {
     if (selectedLetter || !targetLetter) return;
   
@@ -80,6 +81,7 @@ export const useGameLogic = (
     setIsCorrect(correct);
   
     if (correct) {
+      setHasPlayedInitialAudio(1); // Reset audio play state
       setScore((prev) => prev + 1);
       toast({
         title: "Correct!",
@@ -148,15 +150,14 @@ export const useGameLogic = (
   }, [difficulty, gameInitialized, nextQuestion]);
   
   // Auto-play audio when the target letter changes, but only after initial setup
+  const [hasPlayedInitialAudio, setHasPlayedInitialAudio] = useState(1);
+
   useEffect(() => {
-    if (targetLetter && gameInitialized) {
-      const timer = setTimeout(() => {
-        playTargetAudio();
-      }, 500);
-      
-      return () => clearTimeout(timer);
+    if (targetLetter && gameInitialized && hasPlayedInitialAudio) {
+      playTargetAudio();
+      setHasPlayedInitialAudio(0);
     }
-  }, [targetLetter, playTargetAudio, gameInitialized]);
+  }, [targetLetter, gameInitialized, playTargetAudio]);
 
   return {
     currentLetters,
