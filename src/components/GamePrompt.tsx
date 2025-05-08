@@ -23,6 +23,7 @@ const GamePrompt: React.FC<GamePromptProps> = ({
         onClick={playTargetAudio}
         isPlaying={isAudioPlaying}
         isDisabled={!targetLetterName}
+        label={`Play ${targetLetterName || 'letter'} sound`}
       />
     </div>
   );

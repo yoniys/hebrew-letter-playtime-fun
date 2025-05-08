@@ -1,16 +1,17 @@
 
 // Create an audio context to handle playing sounds
-const audioContext: AudioContext | null = null;
+let audioContext: AudioContext | null = null;
 
 // Store the loaded audio files in a cache
 const audioCache: Record<string, AudioBuffer> = {};
 
 export const playAudio = async (audioSrc: string): Promise<void> => {
   try {
-    // For demo purposes, we use a simple Audio element
-    // In production, we would use preloaded audio files
-    const audio = new Audio();
-    audio.src = audioSrc;
+    // Get the cleaned file path by removing any leading slashes
+    const cleanPath = audioSrc.startsWith('/') ? audioSrc.substring(1) : audioSrc;
+    
+    // Create audio element
+    const audio = new Audio(cleanPath);
     audio.volume = 0.8;
     
     // Return a promise that resolves when the audio has finished playing
@@ -20,21 +21,27 @@ export const playAudio = async (audioSrc: string): Promise<void> => {
         console.error("Audio error:", e);
         reject(new Error("Failed to play audio"));
       };
+      
+      // Resume audioContext if it's suspended
       if (audioContext?.state === 'suspended') {
         audioContext.resume();
       }
       
-      audio.play().catch(reject);
+      audio.play().catch((error) => {
+        console.error("Error playing audio:", error);
+        
+        // Fallback to speech synthesis if audio file fails
+        const letterName = audioSrc.split("/").pop()?.split(".")[0] || "letter";
+        speakText(letterName);
+        resolve();
+      });
     });
   } catch (error) {
     console.error("Error playing audio:", error);
     
     // Fallback to speech synthesis if audio file fails
-    const utterance = new SpeechSynthesisUtterance(
-      audioSrc.split("/").pop()?.split(".")[0] || "letter"
-    );
-    utterance.rate = 0.8;
-    speechSynthesis.speak(utterance);
+    const letterName = audioSrc.split("/").pop()?.split(".")[0] || "letter";
+    speakText(letterName);
     
     return Promise.resolve();
   }
@@ -68,24 +75,49 @@ export const playErrorSound = (): void => {
     console.error("Error playing error sound:", error);
     
     // Fallback to speech synthesis
-    const utterance = new SpeechSynthesisUtterance("incorrect");
-    utterance.volume = 0.5;
-    utterance.rate = 1.0;
-    speechSynthesis.speak(utterance);
+    speakText("incorrect");
   }
 };
 
 export const preloadAudio = async (audioSrcs: string[]): Promise<void> => {
-  // This function would preload audio files
-  // For now, we just log that we would preload them
-  console.log("Would preload audio files:", audioSrcs);
+  try {
+    // Initialize audio context if not already done
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+
+    // Preload audio files by creating Audio objects
+    for (const src of audioSrcs) {
+      const audio = new Audio(src);
+      audio.load(); // Start loading the audio file
+    }
+    
+    console.log("Preloaded audio files:", audioSrcs);
+  } catch (error) {
+    console.error("Error preloading audio:", error);
+  }
 };
 
-// For development, since we don't have real audio files, use speech synthesis
+// Speech synthesis fallback when audio files can't be played
 export const speakText = (text: string): void => {
   if ('speechSynthesis' in window) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.8;
     speechSynthesis.speak(utterance);
+  }
+};
+
+// Play a Hebrew letter sound based on the letter character
+export const playLetterSound = async (letter: string): Promise<void> => {
+  try {
+    // Map the letter to its audio file path
+    const audioPath = `src/assets/audio/${letter}.mp3`;
+    return playAudio(audioPath);
+  } catch (error) {
+    console.error("Error playing letter sound:", error);
+    
+    // Fallback to speech synthesis
+    speakText(letter);
+    return Promise.resolve();
   }
 };

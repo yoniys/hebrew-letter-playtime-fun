@@ -1,7 +1,6 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { HebrewLetter, hebrewLetters } from "@/data/hebrewLetters";
-import { playErrorSound, speakText } from "@/utils/audioUtils";
+import { playErrorSound, playAudio, playLetterSound } from "@/utils/audioUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { Difficulty, GameMode } from "@/components/GameConfig";
 
@@ -57,13 +56,19 @@ export const useGameLogic = (
     if (targetLetter && !isAudioPlaying) {
       setIsAudioPlaying(true);
       
-      // Use the imported speakText function instead of requiring it
-      speakText(targetLetter.name);
-      
-      // Simulate audio duration
-      // setTimeout(() => {
-        setIsAudioPlaying(false);
-      // }, 1000);
+      // Use the actual audio file if it exists
+      if (targetLetter.letter) {
+        playLetterSound(targetLetter.letter)
+          .finally(() => {
+            setIsAudioPlaying(false);
+          });
+      } else {
+        // Fallback to the audio path in the letter data or speech synthesis
+        playAudio(targetLetter.audio)
+          .finally(() => {
+            setIsAudioPlaying(false);
+          });
+      }
     }
   }, [targetLetter, isAudioPlaying]);
   
@@ -133,6 +138,12 @@ export const useGameLogic = (
       setAvailableLetters(shuffled);
       nextQuestion(shuffled);
       setGameInitialized(true);
+      
+      // Preload audio for all letters
+      const audioFiles = hebrewLetters.map(letter => `src/assets/audio/${letter.letter}.mp3`);
+      import("@/utils/audioUtils").then(({ preloadAudio }) => {
+        preloadAudio(audioFiles);
+      });
     }
   }, [difficulty, gameInitialized, nextQuestion]);
   
