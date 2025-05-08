@@ -32,6 +32,8 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
   const [missedLetters, setMissedLetters] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const audioContext: AudioContext | null = null;
+
 
   useEffect(() => {
     loadNextWord();
@@ -82,6 +84,9 @@ const MissingLetterGame = ({ onComplete }: MissingLetterGameProps) => {
     setIsSpeaking(true);
 
     const audio = new Audio(wordObj.audioUrl);
+    if (audioContext?.state === 'suspended') {
+       audioContext.resume();
+    }
     audio.play();
 
     audio.onended = () => {

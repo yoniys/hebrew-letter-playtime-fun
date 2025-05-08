@@ -1,0 +1,6 @@
+{
+    "appId": "com.example.myapp",
+    "appName": "vite_react_shadcn_ts",
+    "webDir": "dist",
+    "bundledWebRuntime": false
+  }
