@@ -1,6 +1,6 @@
 
 // Create an audio context to handle playing sounds
-let audioContext: AudioContext | null = null;
+const audioContext: AudioContext | null = null;
 
 // Store the loaded audio files in a cache
 const audioCache: Record<string, AudioBuffer> = {};
@@ -20,6 +20,10 @@ export const playAudio = async (audioSrc: string): Promise<void> => {
         console.error("Audio error:", e);
         reject(new Error("Failed to play audio"));
       };
+      if (audioContext?.state === 'suspended') {
+        audioContext.resume();
+      }
+      
       audio.play().catch(reject);
     });
   } catch (error) {
